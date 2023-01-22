@@ -55,8 +55,11 @@ class TestUserRegister(BaseCase):
             f"Unexpected response content:{response.content}"
 
     def test_create_user_long_name(self):
-        long_val = "".join(choice(ascii_lowercase) for i in range(250))
+        long_val = "".join(choice(ascii_lowercase) for i in range(260))
         self.data['username'] = long_val
         response = requests.post(TEST_URL, data=self.data)
-        Assertions.assert_status_code(response, 200)
-        Assertions.assert_json_has_key(response, "id")
+        Assertions.assert_status_code(response, 400)
+        assert response.content.decode("utf-8") == "The value of 'username' field is too long", \
+            f"Unexpected response content:{response.content}"
+        print(response.content)
+
