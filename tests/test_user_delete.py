@@ -1,6 +1,7 @@
 import requests
 from lib.assertions import Assertions
 from lib.base_case import BaseCase
+from lib.my_requests import MyRequests
 
 
 class TestUserDelete(BaseCase):
@@ -11,13 +12,13 @@ class TestUserDelete(BaseCase):
             'password': '1234'
         }
 
-        response_1 = requests.post("https://playground.learnqa.ru/api/user/login", data=data)
+        response_1 = MyRequests.post("/user/login", data=data)
         auth_sid = self.get_cookie(response_1, "auth_sid")
         x_csrf_token = self.get_header(response_1, "x-csrf-token")
         user_id = self.get_json_value(response_1, "user_id")
 
-        response_2 = requests.delete(
-            f"https://playground.learnqa.ru/api/user/{user_id}",
+        response_2 = MyRequests.delete(
+            f"/user/{user_id}",
             headers={"x-csrf-token": x_csrf_token},
             cookies={"auth_sid": auth_sid}
         )
@@ -29,7 +30,7 @@ class TestUserDelete(BaseCase):
     def test_delete_user(self):
         # register
         register_data = self.prepare_registration_data()
-        response_1 = requests.post("https://playground.learnqa.ru/api/user/", data=register_data)
+        response_1 = MyRequests.post("/user/", data=register_data)
 
         Assertions.assert_status_code(response_1, 200)
 
@@ -42,13 +43,13 @@ class TestUserDelete(BaseCase):
             'email': email,
             'password': password
         }
-        response_2 = requests.post("https://playground.learnqa.ru/api/user/login", data=data)
+        response_2 = MyRequests.post("/user/login", data=data)
         self.auth_sid = self.get_cookie(response_2, "auth_sid")
         self.x_csrf_token = self.get_header(response_2, "x-csrf-token")
 
         # delete
-        response_3 = requests.delete(
-            f"https://playground.learnqa.ru/api/user/{user_id}",
+        response_3 = MyRequests.delete(
+            f"/user/{user_id}",
             headers={"x-csrf-token": self.x_csrf_token},
             cookies={"auth_sid": self.auth_sid}
         )
@@ -56,8 +57,8 @@ class TestUserDelete(BaseCase):
         Assertions.assert_status_code(response_3, 200)
 
         # get
-        response_4 = requests.get(
-            f"https://playground.learnqa.ru/api/user/{user_id}",
+        response_4 = MyRequests.get(
+            f"/user/{user_id}",
             headers={"x-csrf-token": self.x_csrf_token},
             cookies={"auth_sid": self.auth_sid}
         )
@@ -68,7 +69,7 @@ class TestUserDelete(BaseCase):
     def test_delete_other_user(self):
         # register first user
         register_data_1 = self.prepare_registration_data()
-        response_1 = requests.post("https://playground.learnqa.ru/api/user/", data=register_data_1)
+        response_1 = MyRequests.post("/user/", data=register_data_1)
 
         username_1 = register_data_1['username']
         Assertions.assert_status_code(response_1, 200)
@@ -76,7 +77,7 @@ class TestUserDelete(BaseCase):
 
         # register second user
         register_data_2 = self.prepare_registration_data()
-        response_2 = requests.post("https://playground.learnqa.ru/api/user/", data=register_data_2)
+        response_2 = MyRequests.post("/user/", data=register_data_2)
 
         Assertions.assert_status_code(response_2, 200)
 
@@ -89,19 +90,19 @@ class TestUserDelete(BaseCase):
             'email': email_2,
             'password': password_2
         }
-        response_3 = requests.post("https://playground.learnqa.ru/api/user/login", data=data)
+        response_3 = MyRequests.post("/user/login", data=data)
         self.auth_sid = self.get_cookie(response_3, "auth_sid")
         self.x_csrf_token = self.get_header(response_3, "x-csrf-token")
 
         # delete first user
-        response_4 = requests.delete(
-            f"https://playground.learnqa.ru/api/user/{user_id_1}",
+        response_4 = MyRequests.delete(
+            f"/user/{user_id_1}",
             headers={"x-csrf-token": self.x_csrf_token},
             cookies={"auth_sid": self.auth_sid}
         )
         # get first user
-        response_5 = requests.get(
-            f"https://playground.learnqa.ru/api/user/{user_id_1}")
+        response_5 = MyRequests.get(
+            f"/user/{user_id_1}")
 
         Assertions.assert_status_code(response_5, 200)
         Assertions.assert_json_value_by_name(
